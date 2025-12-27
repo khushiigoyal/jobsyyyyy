@@ -1,11 +1,10 @@
-import { GoogleGenerativeAI } from "@google/genai";
+import * as GoogleGenAI from "@google/genai";
 
-// Standardizing initialization for modern Vite
-const genAI = new GoogleGenerativeAI(
+// Standardizing the initialization to bypass TS2305
+const genAI = new (GoogleGenAI as any).GoogleGenerativeAI(
   (import.meta as any).env.VITE_GEMINI_API_KEY || ""
 );
 
-// We use 'gemini-2.0-flash' as it is the most capable current version
 const MODEL_NAME = "gemini-2.0-flash";
 
 export async function analyzeResumeMatch(resume: string, jobDesc: string) {
