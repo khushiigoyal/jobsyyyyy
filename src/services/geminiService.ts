@@ -1,39 +1,42 @@
-import * as GoogleGenAI from "@google/genai";
+import { GoogleGenerativeAI } from "@google/genai";
 
-// Standardizing the initialization
-const genAI = new (GoogleGenAI as any).GoogleGenerativeAI(
+// Standardizing initialization for modern Vite
+const genAI = new GoogleGenerativeAI(
   (import.meta as any).env.VITE_GEMINI_API_KEY || ""
 );
 
+// We use 'gemini-2.0-flash' as it is the most capable current version
+const MODEL_NAME = "gemini-2.0-flash";
+
 export async function analyzeResumeMatch(resume: string, jobDesc: string) {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
   const prompt = `Analyze this resume against the job description. Provide match percentage and improvement tips: \n\nResume: ${resume} \n\nJob: ${jobDesc}`;
+  
   const result = await model.generateContent(prompt);
-  const response = await result.response;
   return { 
-    text: response.text(),
-    groundingChunks: [] // Providing empty array to satisfy TypeScript
+    text: result.response.text(),
+    groundingChunks: [] 
   };
 }
 
 export async function generateInterviewGuide(role: string) {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
   const prompt = `Generate a detailed interview prep guide for a ${role} position.`;
+  
   const result = await model.generateContent(prompt);
-  const response = await result.response;
   return { 
-    text: response.text(),
+    text: result.response.text(),
     groundingChunks: [] 
   };
 }
 
 export async function generateCareerRoadmap(role: string) {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
   const prompt = `Create a step-by-step career roadmap to become a ${role}.`;
+  
   const result = await model.generateContent(prompt);
-  const response = await result.response;
   return { 
-    text: response.text(),
+    text: result.response.text(),
     groundingChunks: [] 
   };
 }
