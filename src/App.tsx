@@ -61,7 +61,8 @@ const App: React.FC = () => {
     try {
       const response = await generateInterviewGuide(role);
       setInterviewResult(response.text);
-      setInterviewGrounding(response.groundingChunks);
+      // Cast groundingChunks to satisfy TypeScript requirements
+      setInterviewGrounding(response.groundingChunks as any);
     } catch (err: any) {
       setError(err.message || "An error occurred generating the guide.");
     } finally {
@@ -79,7 +80,7 @@ const App: React.FC = () => {
     try {
       const response = await generateCareerRoadmap(role);
       setRoadmapResult(response.text);
-      setRoadmapGrounding(response.groundingChunks);
+      setRoadmapGrounding(response.groundingChunks as any);
     } catch (err: any) {
       setError(err.message || "Failed to build your path.");
     } finally {
@@ -87,20 +88,18 @@ const App: React.FC = () => {
     }
   };
 
-  const Illustration = ({ type }: { type: TabType }) => {
-    return (
-      <motion.div 
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 0.15 }}
-        className="w-64 h-64 absolute right-10 top-24 pointer-events-none hidden lg:block z-0"
-      >
-        {type === 'match' && <Briefcase className="w-full h-full text-emerald-500" strokeWidth={0.5} />}
-        {type === 'roadmap' && <Map className="w-full h-full text-blue-500" strokeWidth={0.5} />}
-        {type === 'aptitude' && <Award className="w-full h-full text-amber-500" strokeWidth={0.5} />}
-        {type === 'interview' && <MessageSquare className="w-full h-full text-purple-500" strokeWidth={0.5} />}
-      </motion.div>
-    );
-  };
+  const Illustration = ({ type }: { type: TabType }) => (
+    <motion.div 
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 0.15 }}
+      className="w-64 h-64 absolute right-10 top-24 pointer-events-none hidden lg:block z-0"
+    >
+      {type === 'match' && <Briefcase className="w-full h-full text-emerald-500" strokeWidth={0.5} />}
+      {type === 'roadmap' && <Map className="w-full h-full text-blue-500" strokeWidth={0.5} />}
+      {type === 'aptitude' && <Award className="w-full h-full text-amber-500" strokeWidth={0.5} />}
+      {type === 'interview' && <MessageSquare className="w-full h-full text-purple-500" strokeWidth={0.5} />}
+    </motion.div>
+  );
 
   return (
     <div className="min-h-screen pb-20 px-4 md:px-8 max-w-6xl mx-auto relative">
@@ -135,7 +134,7 @@ const App: React.FC = () => {
                   }`}
                 />
               )}
-              <span className="capitalize">{tab}</span>
+              <span className="hidden sm:inline capitalize">{tab}</span>
             </button>
           ))}
         </div>
@@ -144,7 +143,7 @@ const App: React.FC = () => {
       <AnimatePresence>
         {error && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mb-8 p-4 bg-red-50 border-2 border-red-100 text-red-600 rounded-2xl flex items-center space-x-3">
-            <Info className="w-6 h-6" />
+            <Info className="w-6 h-6 shrink-0" />
             <span className="font-bold">{error}</span>
           </motion.div>
         )}
@@ -157,37 +156,37 @@ const App: React.FC = () => {
           <div className="relative z-10">
             <h2 className="text-4xl font-black text-emerald-900 mb-6">Resume Optimizer</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <textarea value={resume} onChange={(e) => setResume(e.target.value)} className="w-full h-[300px] p-6 bg-white/50 border-2 border-emerald-50 rounded-[2rem] outline-none" placeholder="Your Resume..." />
-              <textarea value={jobDesc} onChange={(e) => setJobDesc(e.target.value)} className="w-full h-[300px] p-6 bg-white/50 border-2 border-blue-50 rounded-[2rem] outline-none" placeholder="Job Description..." />
+              <textarea value={resume} onChange={(e) => setResume(e.target.value)} className="w-full h-[350px] p-8 bg-white/50 border-2 border-emerald-50 rounded-[2rem] outline-none" placeholder="Paste Resume..." />
+              <textarea value={jobDesc} onChange={(e) => setJobDesc(e.target.value)} className="w-full h-[350px] p-8 bg-white/50 border-2 border-blue-50 rounded-[2rem] outline-none" placeholder="Paste Job Description..." />
             </div>
             <button onClick={handleMatchAnalysis} disabled={loading} className="w-full bg-emerald-500 text-white font-black py-6 rounded-[2rem] text-xl shadow-xl hover:bg-emerald-600 transition-all">
-              {loading ? "Analyzing..." : "Compare & Fix Resume"}
+              {loading ? "Analyzing Potential..." : "Compare & Fix Resume"}
             </button>
-            {matchResult && <div className="mt-10 p-8 bg-white/80 rounded-[2rem] shadow-inner"><MarkdownRenderer content={matchResult} /></div>}
+            {matchResult && <div className="mt-10 p-8 bg-white/80 rounded-[2rem] border-t border-emerald-50 shadow-inner"><MarkdownRenderer content={matchResult} /></div>}
           </div>
         )}
 
         {activeTab === 'roadmap' && (
-          <div className="max-w-4xl mx-auto z-10 relative">
-            <h2 className="text-4xl font-black text-emerald-900 mb-6 text-center">Skill Roadmap</h2>
-            <div className="flex gap-4 mb-10">
-              <input type="text" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Target Role..." className="flex-1 p-6 rounded-[2rem] border-2 border-blue-100 outline-none" />
-              <button onClick={handleRoadmapGen} className="bg-blue-500 text-white px-10 rounded-[2rem] font-bold">Build</button>
+          <div className="max-w-4xl mx-auto z-10 relative text-center">
+            <h2 className="text-4xl font-black text-emerald-900 mb-6">Skill Roadmap</h2>
+            <div className="flex gap-4 mb-10 max-w-2xl mx-auto">
+              <input type="text" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Enter Target Role..." className="flex-1 p-6 rounded-[2rem] border-2 border-blue-100 outline-none shadow-xl" />
+              <button onClick={handleRoadmapGen} className="bg-blue-500 text-white px-10 rounded-[2rem] font-bold shadow-lg">Build Path</button>
             </div>
-            {roadmapResult && <MarkdownRenderer content={roadmapResult} groundingChunks={roadmapGrounding} />}
+            {roadmapResult && <div className="text-left bg-white/80 p-10 rounded-[3rem] shadow-xl"><MarkdownRenderer content={roadmapResult} groundingChunks={roadmapGrounding} /></div>}
           </div>
         )}
 
         {activeTab === 'aptitude' && <AptitudeTest />}
 
         {activeTab === 'interview' && (
-          <div className="max-w-4xl mx-auto z-10 relative">
-            <h2 className="text-4xl font-black text-emerald-900 mb-6 text-center">Interview Simulator</h2>
-            <div className="flex gap-4 mb-10">
-              <input type="text" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Role to prep for..." className="flex-1 p-6 rounded-[2rem] border-2 border-purple-100 outline-none" />
-              <button onClick={handleInterviewPrep} className="bg-purple-500 text-white px-10 rounded-[2rem] font-bold">Get Ready</button>
+          <div className="max-w-4xl mx-auto z-10 relative text-center">
+            <h2 className="text-4xl font-black text-emerald-900 mb-6">Interview Simulator</h2>
+            <div className="flex gap-4 mb-10 max-w-2xl mx-auto">
+              <input type="text" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Search prep for a role..." className="flex-1 p-6 rounded-[2rem] border-2 border-purple-100 outline-none shadow-xl" />
+              <button onClick={handleInterviewPrep} className="bg-purple-500 text-white px-10 rounded-[2rem] font-bold shadow-lg">Get Ready</button>
             </div>
-            {interviewResult && <MarkdownRenderer content={interviewResult} groundingChunks={interviewGrounding} />}
+            {interviewResult && <div className="text-left bg-white/80 p-10 rounded-[3rem] shadow-xl"><MarkdownRenderer content={interviewResult} groundingChunks={interviewGrounding} /></div>}
           </div>
         )}
       </main>
@@ -199,5 +198,4 @@ const App: React.FC = () => {
   );
 };
 
-// CRITICAL FIX: Add this line at the very end
 export default App;
